@@ -266,9 +266,12 @@ public abstract class AbstractSpell {
                  */
                 int effectiveCastTime = getEffectiveCastTime(spellLevel, player);
                 playerMagicData.initiateCast(this, getLevel(spellLevel, player), effectiveCastTime, castSource);
-                if(castType.holdToCast()){
-                    //serverPlayer.startUsingItem(player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
-                    serverPlayer.startUsingItem(InteractionHand.MAIN_HAND);
+                if (castType.holdToCast()) {
+                    if (Objects.equals(player.getMainHandItem(), stack)) {
+                        serverPlayer.startUsingItem(InteractionHand.MAIN_HAND);
+                    } else if (Objects.equals(player.getOffhandItem(), stack)) {
+                        serverPlayer.startUsingItem(InteractionHand.OFF_HAND);
+                    }
                 }
                 onServerPreCast(player.level, spellLevel, player, playerMagicData);
                 Messages.sendToPlayer(new ClientboundUpdateCastingState(getSpellId(), getLevel(spellLevel, player), effectiveCastTime, castSource), serverPlayer);
@@ -521,12 +524,12 @@ public abstract class AbstractSpell {
         return deathMessageId;
     }
 
-    public final SpellDamageSource getDamageSource(Entity attacker) {
-        return getDamageSource(attacker, attacker);
+    public final DamageSource getDamageSource(Entity attacker) {
+        return getDamageSource(null, attacker);
     }
 
-    public SpellDamageSource getDamageSource(Entity projectile, Entity attacker) {
-        return SpellDamageSource.source(projectile, attacker, this);
+    public DamageSource getDamageSource(@Nullable Entity projectile, @Nullable Entity attacker) {
+        return projectile == null ? attacker == null ? new DamageSource(getDeathMessageId()) : new SpellDamageSource(attacker, this) : new IndirectSpellDamageSource(projectile, attacker == null ? projectile : attacker, this);
     }
 
     public boolean isEnabled() {

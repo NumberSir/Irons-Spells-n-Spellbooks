@@ -38,83 +38,24 @@ public final class ClientInputEvents {
     private static int useKeyId = Integer.MIN_VALUE;
     public static boolean isUseKeyDown;
     public static boolean hasReleasedSinceCasting;
-
-    public static int test = 0;
-
-    @SubscribeEvent
-    public static void clientTick(TickEvent.ClientTickEvent event) {
-        var minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        if (player == null) {
-            return;
-        }
-
-        if (SPELLBOOK_CAST_STATE.wasPressed() && minecraft.screen == null) {
-            Messages.sendToServer(new ServerboundCast());
-        }
-
-        if (SPELL_WHEEL_STATE.wasPressed()) {
-            if (minecraft.screen == null /*&& Utils.isPlayerHoldingSpellBook(player)*/)
-                SpellWheelOverlay.instance.open();
-        }
-        if (SPELL_WHEEL_STATE.wasReleased()) {
-            if (minecraft.screen == null && SpellWheelOverlay.instance.active)
-                SpellWheelOverlay.instance.close();
-        }
-//        if (ELDRITCH_SCREEN_STATE.wasPressed()) {
-//            if (minecraft.screen == null) {
-//                minecraft.setScreen(new EldritchResearchScreen(Component.empty(), player.getOffhandItem().is(ItemRegistry.ELDRITCH_PAGE.get()) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND));
-//            }else if(minecraft.screen instanceof EldritchResearchScreen screen){
-//                screen.onClose();
-//            }
-//        }
-
-        update();
-    }
+    public static boolean isShiftKeyDown;
 
     @SubscribeEvent
     public static void clientMouseScrolled(InputEvent.MouseScrollingEvent event) {
-        var minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
+        Player player = MinecraftInstanceHelper.getPlayer();
         if (player == null)
             return;
 
-        var spellbookStack = Utils.getPlayerSpellbookStack(player);
-        if (spellbookStack != null && minecraft.screen == null) {
+        if (Minecraft.getInstance().screen == null) {
             if (SPELLBAR_MODIFIER_STATE.isHeld()) {
                 SpellSelectionManager spellSelectionManager = new SpellSelectionManager(MinecraftInstanceHelper.getPlayer());
                 if (spellSelectionManager.getSpellCount() > 0) {
                     int direction = Mth.clamp((int) event.getScrollDelta(), -1, 1);
-//                    irons_spellbooks.LOGGER.debug("original index: {}", spellBookData.getActiveSpellIndex());
-
-                    List<SpellSelectionManager.SpellSlot> spellbookSpells = spellSelectionManager.getSpellsForSlot(Curios.SPELLBOOK_SLOT);
+                    List<SpellSelectionManager.SpellSlot> spellbookSpells = spellSelectionManager.getAllSpells();
                     int spellCount = spellbookSpells.size();
                     int scrollIndex = (Mth.clamp(spellSelectionManager.getSelectionIndex(), 0, spellCount) - direction);
-//                    irons_spellbooks.LOGGER.debug("collapsed new index: {}", scrollIndex);
-//                    irons_spellbooks.LOGGER.debug("{} + {} = {}", scrollIndex, spellCount, scrollIndex + spellCount);
-//                    irons_spellbooks.LOGGER.debug("{} % {} = {}", scrollIndex + spellCount, spellCount, (scrollIndex + spellCount) % spellCount);
                     int selectedIndex = (Mth.clamp(scrollIndex, -1, spellCount + 1) + spellCount) % spellCount;
-
-//                    irons_spellbooks.LOGGER.debug("wrapped collapsed index: {}", scrollIndex);
-
-
-//                    int selectedIndex = ArrayUtils.indexOf(spellBookData.getInscribedSpells(), spellbookSpells.get(scrollIndex));
-
-//                    int newIndex = spellBookData.getActiveSpellIndex() - direction;
-//                    newIndex = (newIndex + spellBookData.getSpellCount()) % spellBookData.getSpellCount();
-//                    while (spellBookData.getInscribedSpells()[newIndex] == null) {
-//                        newIndex = (newIndex + spellBookData.getSpellCount() - direction) % spellBookData.getSpellCount();
-//                    }
-//                    do {
-//                        newIndex = (newIndex + direction) % spellBook.getCount();
-//                        irons_spellbooks.LOGGER.debug("new index: {}",newIndex);
-//                        irons_spellbooks.LOGGER.debug("spell here: {}",spellBookData.getInscribedSpells()[newIndex]);
-//                        if(newIndex == spellBookData.getActiveSpellIndex())
-//                            break;
-//                    }
-//                    while (spellBookData.getInscribedSpells()[newIndex] == null);
                     spellSelectionManager.makeSelection(selectedIndex);
-                    //Messages.sendToServer(new ServerboundSetSpellBookActiveIndex(selectedIndex));
                     event.setCanceled(true);
                 }
             }
@@ -139,9 +80,25 @@ public final class ClientInputEvents {
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        //IronsSpellbooks.LOGGER.debug("onKeyInput key:{}", event.getKey());
-        handleRightClickSuppression(event.getKey(), event.getAction());
+        handleInputEvent(event.getKey(), event.getAction());
+    }
 
+    @SubscribeEvent
+    public static void onMouseInput(InputEvent.MouseButton.Pre event) {
+        handleInputEvent(event.getButton(), event.getAction());
+    }
+
+    private static void handleInputEvent(int button, int action) {
+        //IronsSpellbooks.LOGGER.debug("ClientInputEvents.handleInputEvent");
+        var minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        if (player == null) {
+            return;
+        }
+        handleRightClickSuppression(button, action);
+        if (button == InputConstants.KEY_LSHIFT) {
+            isShiftKeyDown = action >= InputConstants.PRESS;
+        }
         for (int i = 0; i < QUICK_CAST_STATES.size(); i++) {
             //IronsSpellbooks.LOGGER.debug("onKeyInput i:{}",i);
             if (QUICK_CAST_STATES.get(i).wasPressed()) {
@@ -150,11 +107,28 @@ public final class ClientInputEvents {
                 break;
             }
         }
-    }
-
-    @SubscribeEvent
-    public static void onMouseInput(InputEvent.MouseButton.Pre event) {
-        handleRightClickSuppression(event.getButton(), event.getAction());
+        if (SPELLBOOK_CAST_STATE.wasPressed() && minecraft.screen == null) {
+            //IronsSpellbooks.LOGGER.debug("ClientInputEvents.handleInputEvent: SPELLBOOK_CAST_STATE");
+            Messages.sendToServer(new ServerboundCast());
+        }
+        if (SPELL_WHEEL_STATE.wasPressed()) {
+            //IronsSpellbooks.LOGGER.debug("ClientInputEvents.handleInputEvent: SPELL_WHEEL_STATE pressed");
+            if (minecraft.screen == null /*&& Utils.isPlayerHoldingSpellBook(player)*/)
+                SpellWheelOverlay.instance.open();
+        }
+        if (SPELL_WHEEL_STATE.wasReleased()) {
+            //IronsSpellbooks.LOGGER.debug("ClientInputEvents.handleInputEvent: SPELL_WHEEL_STATE released");
+            if (minecraft.screen == null && SpellWheelOverlay.instance.active)
+                SpellWheelOverlay.instance.close();
+        }
+//        if (ELDRITCH_SCREEN_STATE.wasPressed()) {
+//            if (minecraft.screen == null) {
+//                minecraft.setScreen(new EldritchResearchScreen(Component.empty(), player.getOffhandItem().is(ItemRegistry.ELDRITCH_PAGE.get()) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND));
+//            }else if(minecraft.screen instanceof EldritchResearchScreen screen){
+//                screen.onClose();
+//            }
+//        }
+        update();
     }
 
     private static void handleRightClickSuppression(int button, int action) {

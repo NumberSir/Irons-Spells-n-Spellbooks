@@ -1,7 +1,6 @@
 package io.redspace.ironsspellbooks.registries;
 
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import io.redspace.ironsspellbooks.IronsSpellbooks;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellDataRegistryHolder;
@@ -15,21 +14,26 @@ import io.redspace.ironsspellbooks.item.curios.*;
 import io.redspace.ironsspellbooks.item.spell_books.SimpleAttributeSpellBook;
 import io.redspace.ironsspellbooks.item.weapons.*;
 import io.redspace.ironsspellbooks.util.ItemPropertiesHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public class ItemRegistry {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, IronsSpellbooks.MODID);
@@ -59,7 +63,15 @@ public class ItemRegistry {
         builder.put(AttributeRegistry.CAST_TIME_REDUCTION.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .08, AttributeModifier.Operation.MULTIPLY_BASE));
         return new SimpleAttributeSpellBook(6, SpellRarity.EPIC, builder.build());
     });
-    public static final RegistryObject<Item> dev_staff = ITEMS.register("dev_staff", () -> new StaffItem(ItemPropertiesHelper.equipment().stacksTo(1)));
+    public static final RegistryObject<Item> dev_staff = ITEMS.register("dev_staff", () -> new StaffItem(ItemPropertiesHelper.equipment().stacksTo(1), 2, -3, Map.of(AttributeRegistry.MANA_REGEN.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .25, AttributeModifier.Operation.MULTIPLY_BASE), AttributeRegistry.SPELL_POWER.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .10, AttributeModifier.Operation.MULTIPLY_BASE))) {
+        @Override
+        public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+            super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
+            pTooltipComponents.add(1, Component.literal("> NOT FINAL").withStyle(ChatFormatting.RED));
+        }
+    });
+    public static final RegistryObject<Item> GRAYBEARD_STAFF = ITEMS.register("graybeard_staff", () -> new StaffItem(ItemPropertiesHelper.equipment().stacksTo(1), 2, -3, Map.of(AttributeRegistry.MANA_REGEN.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .25, AttributeModifier.Operation.MULTIPLY_BASE), AttributeRegistry.SPELL_POWER.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .10, AttributeModifier.Operation.MULTIPLY_BASE))));
+    public static final RegistryObject<Item> ice_staff = ITEMS.register("ice_staff", () -> new StaffItem(ItemPropertiesHelper.equipment().stacksTo(1), 2, -3, Map.of(AttributeRegistry.MANA_REGEN.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .25, AttributeModifier.Operation.MULTIPLY_BASE), AttributeRegistry.ICE_SPELL_POWER.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .15, AttributeModifier.Operation.MULTIPLY_BASE), AttributeRegistry.SPELL_POWER.get(), new AttributeModifier(UUID.fromString("667ad88f-901d-4691-b2a2-3664e42026d3"), "Weapon modifier", .05, AttributeModifier.Operation.MULTIPLY_BASE))));
 
     public static final RegistryObject<Item> BLOOD_STAFF = ITEMS.register("blood_staff", () -> new BloodStaffItem(
             new SpellDataRegistryHolder[]{
@@ -83,13 +95,14 @@ public class ItemRegistry {
     );
 
     public static final RegistryObject<Item> MAGEHUNTER = ITEMS.register("magehunter", MagehunterItem::new);
-    //public static final RegistryObject<Item> SPELLBREAKER = ITEMS.register("spellbreaker", () -> new SpellbreakerItem(new SpellDataRegistryHolder(SpellRegistry.COUNTERSPELL_SPELL, 1)));
+    public static final RegistryObject<Item> SPELLBREAKER = ITEMS.register("spellbreaker", () -> new SpellbreakerItem(new SpellDataRegistryHolder(SpellRegistry.COUNTERSPELL_SPELL, 1)));
     public static final RegistryObject<Item> TEST_CLAYMORE = ITEMS.register("claymore", TestClaymoreItem::new);
+    //public static final RegistryObject<Item> TEST_RAPIER = ITEMS.register("amethyst_rapier", () -> new SpellbreakerItem(new SpellDataRegistryHolder(SpellRegistry.STARFALL_SPELL, 8)));
     public static final RegistryObject<Item> KEEPER_FLAMBERGE = ITEMS.register("keeper_flamberge", KeeperFlambergeItem::new);
-    //public static final RegistryObject<Item> TRUTHSEEKER = ITEMS.register("truthseeker", TruthseekerItem::new);
+    public static final RegistryObject<Item> TRUTHSEEKER = ITEMS.register("truthseeker", TruthseekerItem::new);
     //public static final RegistryObject<Item> FIREBRAND = ITEMS.register("firebrand", FirebrandItem::new);
     public static final RegistryObject<Item> SCROLL = ITEMS.register("scroll", Scroll::new);
-    //public static final RegistryObject<Item> AUTOLOADER_CROSSBOW = ITEMS.register("autoloader_crossbow", () -> new AutoloaderCrossbow(ItemPropertiesHelper.equipment().stacksTo(1).durability(465)));
+    public static final RegistryObject<Item> AUTOLOADER_CROSSBOW = ITEMS.register("autoloader_crossbow", () -> new AutoloaderCrossbow(ItemPropertiesHelper.equipment().stacksTo(1).durability(465)));
 
     /**
      * Ink
@@ -135,7 +148,7 @@ public class ItemRegistry {
     public static final RegistryObject<Item> FROZEN_BONE_SHARD = ITEMS.register("frozen_bone", () -> new Item(ItemPropertiesHelper.material()));
     public static final RegistryObject<Item> BLOOD_VIAL = ITEMS.register("blood_vial", () -> new Item(ItemPropertiesHelper.material()));
     public static final RegistryObject<Item> DIVINE_PEARL = ITEMS.register("divine_pearl", () -> new Item(ItemPropertiesHelper.material()));
-    //    public static final RegistryObject<Item> FURLED_MAP = ITEMS.register("furled_map", () -> new FurledMapItem());
+    public static final RegistryObject<Item> FURLED_MAP = ITEMS.register("furled_map", () -> new FurledMapItem());
     public static final RegistryObject<Item> HOGSKIN = ITEMS.register("hogskin", () -> new Item(ItemPropertiesHelper.material()));
     public static final RegistryObject<Item> DRAGONSKIN = ITEMS.register("dragonskin", DragonskinItem::new);
     public static final RegistryObject<Item> ARCANE_ESSENCE = ITEMS.register("arcane_essence", () -> new Item(ItemPropertiesHelper.material()));

@@ -1,30 +1,25 @@
 package io.redspace.ironsspellbooks.gui.overlays;
 
 import io.redspace.ironsspellbooks.IronsSpellbooks;
-import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.capabilities.spell.SpellData;
-import io.redspace.ironsspellbooks.capabilities.spellbook.SpellBookData;
 import io.redspace.ironsspellbooks.compat.Curios;
-import io.redspace.ironsspellbooks.item.SpellBook;
 import io.redspace.ironsspellbooks.player.ClientMagicData;
 import io.redspace.ironsspellbooks.player.ClientRenderCache;
 import io.redspace.ironsspellbooks.api.util.Utils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
-public class SpellBarOverlay implements IGuiOverlay {
-    public static final SpellBarOverlay instance = new SpellBarOverlay();
+import java.util.List;
 
+public class SpellBarOverlay extends GuiComponent {
     public final static ResourceLocation TEXTURE = new ResourceLocation(IronsSpellbooks.MODID, "textures/gui/icons.png");
     static final int IMAGE_HEIGHT = 21;
     static final int IMAGE_WIDTH = 21;
@@ -35,7 +30,7 @@ public class SpellBarOverlay implements IGuiOverlay {
 
     private static ItemStack lastSpellBook = ItemStack.EMPTY;
 
-    public void render(ForgeGui gui, GuiGraphics guiHelper, float partialTick, int screenWidth, int screenHeight) {
+    public static void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight) {
         Player player = Minecraft.getInstance().player;
 
         if (!Utils.isPlayerHoldingSpellBook(player))
@@ -49,53 +44,46 @@ public class SpellBarOverlay implements IGuiOverlay {
         //
         //  Render Spells
         //
-        ItemStack spellBookStack = Utils.getPlayerSpellbookStack(player);
-        var spellBookData = SpellBookData.getSpellBookData(spellBookStack);
-        if (spellBookStack != lastSpellBook) {
-            lastSpellBook = spellBookStack;
-            ClientRenderCache.generateRelativeLocations(spellBookData, 20, 22);
-        }
-
-        var spells = spellBookData.getInscribedSpells();
+        //TODO: cache again
+        ClientRenderCache.generateRelativeLocations(20, 22);
+        var swsm = new SpellSelectionManager(player);
+        int totalSpellsAvailable = swsm.getSpellCount();
+        List<SpellData> spells = swsm.getAllSpells().stream().map((slot) -> slot.spellData).toList();
+        int spellbookCount = swsm.getSpellsForSlot(Curios.SPELLBOOK_SLOT).size();
         var locations = ClientRenderCache.relativeSpellBarSlotLocations;
         int approximateWidth = locations.size() / 3;
         //Move spellbar away from hotbar as it gets bigger
         centerX -= approximateWidth * 5;
-        var spellSelection = ClientMagicData.getSyncedSpellData(player).getSpellSelection();
-        int selectedSpellIndex = spellSelection.index;
-        if (!spellSelection.equipmentSlot.equals(Curios.SPELLBOOK_SLOT)) {
-            selectedSpellIndex = -1;
-        }
+        //var spellSelection = ClientMagicData.getSyncedSpellData(player).getSpellSelection();
+        int selectedSpellIndex = swsm.getSelectionIndex();
 
         //Slot Border
-        //setTranslucentTexture(TEXTURE);
+        setTranslucentTexture(TEXTURE);
         for (Vec2 location : locations) {
-            guiHelper.blit(TEXTURE, centerX + (int) location.x, centerY + (int) location.y, 66, 84, 22, 22);
+            gui.blit(poseStack, centerX + (int) location.x, centerY + (int) location.y, 66, 84, 22, 22);
         }
         //Spell Icons
         for (int i = 0; i < locations.size(); i++) {
-            if (spells[i] != null) {
-                //setOpaqueTexture(spells[i].getSpellType().getResourceLocation());
-                guiHelper.blit(spells[i].getSpell().getSpellIconResource(), centerX + (int) locations.get(i).x + 3, centerY + (int) locations.get(i).y + 3, 0, 0, 16, 16, 16, 16);
-            }
+            setOpaqueTexture(spells.get(i).getSpell().getSpellIconResource());
+            gui.blit(poseStack, centerX + (int) locations.get(i).x + 3, centerY + (int) locations.get(i).y + 3, 0, 0, 16, 16, 16, 16);
         }
         //Border + Cooldowns
         for (int i = 0; i < locations.size(); i++) {
-            //setTranslucentTexture(TEXTURE);
+            setTranslucentTexture(TEXTURE);
             if (i != selectedSpellIndex)
-                guiHelper.blit(TEXTURE, centerX + (int) locations.get(i).x, centerY + (int) locations.get(i).y, 22, 84, 22, 22);
+                gui.blit(poseStack, centerX + (int) locations.get(i).x, centerY + (int) locations.get(i).y, 22 + (i >= spellbookCount ? 110 : 0), 84, 22, 22);
 
-            float f = spells[i] == null ? 0 : ClientMagicData.getCooldownPercent(spells[i].getSpell());
+            float f = ClientMagicData.getCooldownPercent(spells.get(i).getSpell());
             if (f > 0) {
                 int pixels = (int) (16 * f + 1f);
-                guiHelper.blit(TEXTURE, centerX + (int) locations.get(i).x + 3, centerY + (int) locations.get(i).y + 19 - pixels, 47, 87, 16, pixels);
+                gui.blit(poseStack, centerX + (int) locations.get(i).x + 3, centerY + (int) locations.get(i).y + 19 - pixels, 47, 87, 16, pixels);
             }
         }
         //Selected Outline
         for (int i = 0; i < locations.size(); i++) {
-            //setTranslucentTexture(TEXTURE);
+            setTranslucentTexture(TEXTURE);
             if (i == selectedSpellIndex)
-                guiHelper.blit(TEXTURE, centerX + (int) locations.get(i).x, centerY + (int) locations.get(i).y, 0, 84, 22, 22);
+                gui.blit(poseStack, centerX + (int) locations.get(i).x, centerY + (int) locations.get(i).y, 0, 84, 22, 22);
         }
     }
 

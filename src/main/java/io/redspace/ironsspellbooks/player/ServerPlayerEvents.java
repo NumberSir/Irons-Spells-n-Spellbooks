@@ -67,6 +67,7 @@ import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -93,7 +94,14 @@ public class ServerPlayerEvents {
 //    }
 
     @SubscribeEvent
+    public static void onServerStoppingEvent(ServerStoppingEvent event) {
+        IronsSpellBooksWorldData.INSTANCE.save();
+    }
+
+    @SubscribeEvent
     public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+        IronsSpellBooksWorldData.init(event.getServer().storageSource);
+
         if (ServerConfigs.RUN_WORLD_UPGRADER.get()) {
             var server = event.getServer();
             new IronsWorldUpgrader(server.storageSource, server.registries()).runUpgrade();
@@ -209,7 +217,7 @@ public class ServerPlayerEvents {
             event.getOriginal().reviveCaps();
             MagicData oldMagicData = MagicData.getPlayerMagicData(event.getOriginal());
             MagicData newMagicData = MagicData.getPlayerMagicData(event.getEntity());
-            newMagicData.setSyncedData(oldMagicData.getSyncedData());
+            newMagicData.setSyncedData(oldMagicData.getSyncedData().getPersistentData());
             newMagicData.getSyncedData().doSync();
             event.getOriginal().invalidateCaps();
         }
@@ -478,6 +486,21 @@ public class ServerPlayerEvents {
                 //IronsSpellbooks.LOGGER.debug("new result: {}", newResult);
 
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void changeDigSpeed(PlayerEvent.BreakSpeed event) {
+        //This event is getting run on the server and the client, and because the client is aware of its own status effects, this works
+        //(If it did not get run on the client, then breaking particles would not match)
+        var player = event.getEntity();
+        if (player.hasEffect(MobEffectRegistry.HASTENED.get())) {
+            int i = 1 + player.getEffect(MobEffectRegistry.HASTENED.get()).getAmplifier();
+            event.setNewSpeed(event.getNewSpeed() * Utils.intPow(1.2f, i));
+        }
+        if (player.hasEffect(MobEffectRegistry.SLOWED.get())) {
+            int i = 1 + player.getEffect(MobEffectRegistry.SLOWED.get()).getAmplifier();
+            event.setNewSpeed(event.getNewSpeed() * Utils.intPow(.8f, i));
         }
     }
 }

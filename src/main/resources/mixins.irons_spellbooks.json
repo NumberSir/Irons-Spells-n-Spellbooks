@@ -18,7 +18,6 @@
     "AbstractClientPlayerMixin",
     "EntityRendererMixin",
     "GuiMixin",
-    "ItemRendererMixin",
     "LocalPlayerMixin",
     "MinecraftMixin",
     "ParticleMixin",
