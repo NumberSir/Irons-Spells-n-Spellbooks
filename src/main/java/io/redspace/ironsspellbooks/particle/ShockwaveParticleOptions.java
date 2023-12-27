@@ -55,12 +55,17 @@ public class ShockwaveParticleOptions extends DustParticleOptionsBase implements
     /*
         Copied From Dust Particle Options
          */
-    public static final Codec<ShockwaveParticleOptions> CODEC = RecordCodecBuilder.create((p_175793_) -> p_175793_.group(ExtraCodecs.VECTOR3F.fieldOf("color").forGetter((p_175797_) -> p_175797_.color), Codec.FLOAT.fieldOf("scale").forGetter((p_175795_) -> p_175795_.scale)).apply(p_175793_, ShockwaveParticleOptions::new));
     public static final Codec<IShockwaveParticleOptions> CODEC = RecordCodecBuilder.create((p_175793_) ->
-            p_175793_.group(Vector3f.CODEC.fieldOf("color").forGetter(IShockwaveParticleOptions::color),
+            p_175793_.group(ExtraCodecs.VECTOR3F.fieldOf("color").forGetter(IShockwaveParticleOptions::color),
                     Codec.FLOAT.fieldOf("scale").forGetter(IShockwaveParticleOptions::getScale),
                     Codec.BOOL.fieldOf("fullbright").forGetter(IShockwaveParticleOptions::isFullbright)
             ).apply(p_175793_, ShockwaveParticleOptions::new));
+    //1.19 codec
+//    public static final Codec<IShockwaveParticleOptions> CODEC = RecordCodecBuilder.create((p_175793_) ->
+//            p_175793_.group(Vector3f.CODEC.fieldOf("color").forGetter(IShockwaveParticleOptions::color),
+//                    Codec.FLOAT.fieldOf("scale").forGetter(IShockwaveParticleOptions::getScale),
+//                    Codec.BOOL.fieldOf("fullbright").forGetter(IShockwaveParticleOptions::isFullbright)
+//            ).apply(p_175793_, ShockwaveParticleOptions::new));
     @SuppressWarnings("deprecation")
     public static final Deserializer<IShockwaveParticleOptions> DESERIALIZER = new Deserializer<IShockwaveParticleOptions>() {
         public @NotNull IShockwaveParticleOptions fromCommand(@NotNull ParticleType<IShockwaveParticleOptions> p_123689_, @NotNull StringReader p_123690_) throws CommandSyntaxException {

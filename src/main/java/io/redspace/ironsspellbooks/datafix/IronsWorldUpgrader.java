@@ -49,7 +49,7 @@ public class IronsWorldUpgrader {
     private int fixes;
     private boolean running;
     private static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca$");
-    private final Set<ResourceKey<Level>> levels;
+    private Set<ResourceKey<Level>> levels;
 
     public IronsWorldUpgrader(LevelStorageSource.LevelStorageAccess pLevelStorage, LayeredRegistryAccess<RegistryLayer> registries) {
         this.levelStorage = pLevelStorage;
@@ -75,11 +75,6 @@ public class IronsWorldUpgrader {
         } catch (Exception ignored) {
         }
 
-        this.overworldDataStorage = new DimensionDataStorage(file, dataFixer);
-        IronsSpellBooksWorldData.INSTANCE = overworldDataStorage.computeIfAbsent(
-                IronsSpellBooksWorldData::load,
-                IronsSpellBooksWorldData::new,
-                IronsSpellbooks.MODID);
     }
 
     public boolean worldNeedsUpgrading() {
@@ -120,8 +115,8 @@ public class IronsWorldUpgrader {
 
             int previousVersion = IronsSpellBooksWorldData.INSTANCE.getDataVersion();
             IronsSpellBooksWorldData.INSTANCE.setDataVersion(IRONS_WORLD_DATA_VERSION);
-            //TODO: curio casting 1.20 port: 1.19 tried to delete this very next line
-            overworldDataStorage.save();
+            //TODO: curio casting 1.20 port: 1.19 tried to delete this commented out line
+//            overworldDataStorage.save();
             IronsSpellbooks.LOGGER.info("IronsWorldUpgrader V{} -> V{} completed", previousVersion, IRONS_WORLD_DATA_VERSION);
         }
     }

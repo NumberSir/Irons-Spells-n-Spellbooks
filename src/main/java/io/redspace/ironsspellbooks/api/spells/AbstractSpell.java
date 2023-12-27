@@ -524,12 +524,12 @@ public abstract class AbstractSpell {
         return deathMessageId;
     }
 
-    public final DamageSource getDamageSource(Entity attacker) {
-        return getDamageSource(null, attacker);
+    public final SpellDamageSource getDamageSource(Entity attacker) {
+        return getDamageSource(attacker, attacker);
     }
 
-    public DamageSource getDamageSource(@Nullable Entity projectile, @Nullable Entity attacker) {
-        return projectile == null ? attacker == null ? new DamageSource(getDeathMessageId()) : new SpellDamageSource(attacker, this) : new IndirectSpellDamageSource(projectile, attacker == null ? projectile : attacker, this);
+    public SpellDamageSource getDamageSource(Entity projectile, Entity attacker) {
+        return SpellDamageSource.source(projectile, attacker, this);
     }
 
     public boolean isEnabled() {
