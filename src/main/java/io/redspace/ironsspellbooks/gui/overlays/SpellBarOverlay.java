@@ -68,7 +68,7 @@ public class SpellBarOverlay implements IGuiOverlay {
         //Spell Icons
         for (int i = 0; i < locations.size(); i++) {
             setOpaqueTexture(spells.get(i).getSpell().getSpellIconResource());
-            guiHelper.blit(TEXTURE, centerX + (int) locations.get(i).x + 3, centerY + (int) locations.get(i).y + 3, 0, 0, 16, 16, 16, 16);
+            guiHelper.blit(spells.get(i).getSpell().getSpellIconResource(), centerX + (int) locations.get(i).x + 3, centerY + (int) locations.get(i).y + 3, 0, 0, 16, 16, 16, 16);
         }
         //Border + Cooldowns
         for (int i = 0; i < locations.size(); i++) {

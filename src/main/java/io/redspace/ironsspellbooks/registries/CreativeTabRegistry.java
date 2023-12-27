@@ -44,7 +44,13 @@ public class CreativeTabRegistry {
                 entries.accept(ItemRegistry.DRUIDIC_SPELL_BOOK.get());
                 entries.accept(ItemRegistry.BLOOD_STAFF.get());
                 entries.accept(ItemRegistry.dev_staff.get());
+                entries.accept(ItemRegistry.GRAYBEARD_STAFF.get());
+                entries.accept(ItemRegistry.ice_staff.get());
+                entries.accept(ItemRegistry.ice_staff.get());
                 entries.accept(ItemRegistry.MAGEHUNTER.get());
+                entries.accept(ItemRegistry.TRUTHSEEKER.get());
+                entries.accept(ItemRegistry.SPELLBREAKER.get());
+                entries.accept(ItemRegistry.AUTOLOADER_CROSSBOW.get());
                 entries.accept(ItemRegistry.KEEPER_FLAMBERGE.get());
                 entries.accept(ItemRegistry.WAYWARD_COMPASS.get());
 
