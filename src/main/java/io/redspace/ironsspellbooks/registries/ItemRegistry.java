@@ -9,6 +9,9 @@ import io.redspace.ironsspellbooks.api.spells.SpellRarity;
 import io.redspace.ironsspellbooks.compat.Curios;
 import io.redspace.ironsspellbooks.item.*;
 import io.redspace.ironsspellbooks.item.armor.*;
+import io.redspace.ironsspellbooks.item.consumables.DrinkableItem;
+import io.redspace.ironsspellbooks.item.consumables.FireAleItem;
+import io.redspace.ironsspellbooks.item.consumables.FireAleItem;
 import io.redspace.ironsspellbooks.item.consumables.SimpleElixir;
 import io.redspace.ironsspellbooks.item.curios.*;
 import io.redspace.ironsspellbooks.item.spell_books.SimpleAttributeSpellBook;
@@ -124,6 +127,7 @@ public class ItemRegistry {
     public static final RegistryObject<Item> GREATER_INVISIBILITY_ELIXIR = ITEMS.register("greater_invisibility_elixir", () -> new SimpleElixir(ItemPropertiesHelper.material(), () -> new MobEffectInstance(MobEffectRegistry.TRUE_INVISIBILITY.get(), 20 * 40, 0, false, false, true), true));
     public static final RegistryObject<Item> EVASION_ELIXIR = ITEMS.register("evasion_elixir", () -> new SimpleElixir(ItemPropertiesHelper.material(), () -> new MobEffectInstance(MobEffectRegistry.EVASION.get(), 20 * 60, 1, false, false, true)));
     public static final RegistryObject<Item> GREATER_EVASION_ELIXIR = ITEMS.register("greater_evasion_elixir", () -> new SimpleElixir(ItemPropertiesHelper.material(), () -> new MobEffectInstance(MobEffectRegistry.EVASION.get(), 20 * 60, 3, false, false, true), true));
+    public static final RegistryObject<Item> FIRE_ALE = ITEMS.register("fire_ale", () -> new FireAleItem(new Item.Properties().tab(SpellbookModCreativeTabs.SPELL_MATERIALS_TAB)));
 
     /**
      * Upgrade Orbs
