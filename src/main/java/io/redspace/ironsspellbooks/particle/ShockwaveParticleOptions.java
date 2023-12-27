@@ -57,7 +57,7 @@ public class ShockwaveParticleOptions extends DustParticleOptionsBase implements
          */
     public static final Codec<IShockwaveParticleOptions> CODEC = RecordCodecBuilder.create((p_175793_) ->
             p_175793_.group(ExtraCodecs.VECTOR3F.fieldOf("color").forGetter(IShockwaveParticleOptions::color),
-                    Codec.FLOAT.fieldOf("scale").forGetter(IShockwaveParticleOptions::getScale),
+                    Codec.FLOAT.fieldOf("scale").forGetter((p_175795_) -> p_175795_.getScale()),
                     Codec.BOOL.fieldOf("fullbright").forGetter(IShockwaveParticleOptions::isFullbright)
             ).apply(p_175793_, ShockwaveParticleOptions::new));
     //1.19 codec

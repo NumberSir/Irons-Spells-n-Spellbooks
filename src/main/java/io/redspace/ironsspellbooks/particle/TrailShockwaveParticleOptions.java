@@ -73,7 +73,10 @@ public class TrailShockwaveParticleOptions extends DustParticleOptionsBase imple
          */
     public static final Codec<IShockwaveParticleOptions> CODEC = RecordCodecBuilder.create((p_175793_) ->
             p_175793_.group(ExtraCodecs.VECTOR3F.fieldOf("color").forGetter(IShockwaveParticleOptions::color),
-                    Codec.FLOAT.fieldOf("scale").forGetter(IShockwaveParticleOptions::getScale),
+                    //TODO:
+                    // what the magic fuck is going on
+                    // replacing getScale with a :: reference breaks the game in live
+                    Codec.FLOAT.fieldOf("scale").forGetter((p_175795_) -> p_175795_.getScale()),
                     Codec.BOOL.fieldOf("fullbright").forGetter(IShockwaveParticleOptions::isFullbright),
                     Codec.STRING.fieldOf("trailParticle").forGetter(IShockwaveParticleOptions::trailParticleRaw)
             ).apply(p_175793_, TrailShockwaveParticleOptions::new));
