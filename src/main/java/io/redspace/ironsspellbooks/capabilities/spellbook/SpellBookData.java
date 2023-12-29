@@ -135,7 +135,8 @@ public class SpellBookData {
     }
 
     public void loadFromNBT(ItemStack stack, CompoundTag compound) {
-        this.spellSlots = compound.getInt(SPELL_SLOTS);
+        //TODO: temporary buff, this bricks nbt
+        this.spellSlots = stack.getItem() instanceof SpellBook spellBook ? spellBook.getSpellSlots() : compound.getInt(SPELL_SLOTS);
         this.transcribedSpells = new SpellData[spellSlots];
 
         ListTag listTagSpells = (ListTag) compound.get(SPELLS);
