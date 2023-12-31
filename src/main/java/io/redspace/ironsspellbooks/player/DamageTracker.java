@@ -16,7 +16,7 @@ public class DamageTracker {
     public void handle(LivingDamageEvent livingDamageEvent) {
         if (livingDamageEvent.getSource().getEntity() instanceof Player player) {
             var playerData = damageData.computeIfAbsent(player.getUUID(), k -> {
-                nameLookup.put(livingDamageEvent.getEntity().getUUID(), livingDamageEvent.getEntity().getName().getString());
+                nameLookup.put(player.getUUID(), player.getName().getString());
                 return new HashMap<>();
             });
 
