@@ -34,7 +34,7 @@ public class DamageTracker {
         var sb = new StringBuilder();
         damageData.forEach((playerID, entityData) -> {
             entityData.forEach((entityId, cw) -> {
-                sb.append(String.format("%s,%s,%f", playerID, entityId, cw.value));
+                sb.append(String.format("%s,%s,%f\n", playerID, entityId, cw.value));
             });
         });
         return sb.toString();
