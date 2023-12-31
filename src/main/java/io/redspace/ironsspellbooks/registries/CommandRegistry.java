@@ -4,7 +4,6 @@ import io.redspace.ironsspellbooks.command.*;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLLoader;
 
 
 @Mod.EventBusSubscriber()
@@ -23,6 +22,7 @@ public class CommandRegistry {
         ManaCommand.register(commandDispatcher);
         GenerateModList.register(commandDispatcher);
         LearnCommand.register(commandDispatcher);
+        DamageTrackerCommand.register(commandDispatcher);
 //        if (!FMLLoader.isProduction()) {
 //            GenerateSiteData.register(commandDispatcher);
 //        }
